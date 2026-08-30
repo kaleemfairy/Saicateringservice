@@ -1,4 +1,45 @@
+// Reset the page-transition fade when a page is restored from bfcache
+// (e.g. the browser Back button), since DOMContentLoaded doesn't refire then.
+window.addEventListener('pageshow', () => {
+  document.body.classList.remove('page-leaving');
+  requestAnimationFrame(() => document.body.classList.add('page-ready'));
+});
+
 document.addEventListener('DOMContentLoaded', () => {
+  // Page entrance fade-in
+  requestAnimationFrame(() => document.body.classList.add('page-ready'));
+
+  // Scroll-reveal: fade/slide up sections and cards as they enter the viewport
+  const revealTargets = document.querySelectorAll(
+    '.section-head, .dish-card, .work-card, .testi, .area-card, .stat, .about-visual, .contact-card, .map-block, .hero-inner > div'
+  );
+  revealTargets.forEach(el => el.classList.add('reveal'));
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+    revealTargets.forEach(el => io.observe(el));
+  } else {
+    revealTargets.forEach(el => el.classList.add('in-view'));
+  }
+
+  // Smooth fade transition when navigating to another page on this site
+  document.querySelectorAll('a[href]').forEach(a => {
+    const href = a.getAttribute('href');
+    if (!href || href.startsWith('#') || href.startsWith('http') || href.startsWith('tel:') || href.startsWith('mailto:') || a.target === '_blank') return;
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      document.body.classList.remove('page-ready');
+      document.body.classList.add('page-leaving');
+      setTimeout(() => { window.location.href = href; }, 260);
+    });
+  });
+
   const yearEl = document.getElementById('year');
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
@@ -56,29 +97,6 @@ document.addEventListener('DOMContentLoaded', () => {
       qpForm.innerHTML = isTamil
         ? '<p style="margin:0; color:#3D5C3A; font-weight:600;">WhatsApp திறக்கப்படுகிறது…</p>'
         : '<p style="margin:0; color:#3D5C3A; font-weight:600;">Opening WhatsApp for you…</p>';
-    });
-  }
-
-  // Scroll-reveal — fade/slide sections in as they enter view.
-  // Only applies the hidden starting state when IntersectionObserver exists,
-  // so content is never stuck invisible in unsupported browsers.
-  const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if ('IntersectionObserver' in window && !prefersReducedMotion) {
-    const revealTargets = document.querySelectorAll(
-      '.section-head, .dish-card, .testi, .work-card, .area-card, .contact-card, .about-visual, .about-copy, .stat-row, .thali, .map-block'
-    );
-    const revealObserver = new IntersectionObserver((entries, observer) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('reveal-in');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
-
-    revealTargets.forEach(el => {
-      el.classList.add('reveal');
-      revealObserver.observe(el);
     });
   }
 });
