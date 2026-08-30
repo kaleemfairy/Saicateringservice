@@ -273,7 +273,21 @@ header {
 .hero {
   position: relative;
   padding: 72px 24px 84px;
-  background: radial-gradient(
+  background: repeating-radial-gradient(
+      circle at 18% 22%,
+      rgba(217, 164, 4, 0.07) 0px,
+      rgba(217, 164, 4, 0.07) 1px,
+      transparent 1px,
+      transparent 26px
+    ),
+    repeating-radial-gradient(
+      circle at 84% 78%,
+      rgba(61, 92, 58, 0.06) 0px,
+      rgba(61, 92, 58, 0.06) 1px,
+      transparent 1px,
+      transparent 30px
+    ),
+    radial-gradient(
       ellipse at 15% 20%,
       rgba(217, 164, 4, 0.14),
       transparent 45%
@@ -840,12 +854,27 @@ footer {
   color: var(--ivory);
 }
 
+/* ===== Scroll-reveal (progressive enhancement via IntersectionObserver) ===== */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.reveal-in {
+  opacity: 1;
+  transform: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
   * {
     transition: none !important;
+  }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
 
@@ -871,21 +900,33 @@ footer {
 }
 .quote-popup .qp-close {
   position: absolute;
-  top: 10px;
-  right: 12px;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: none;
   border: none;
-  font-size: 1.1rem;
+  border-radius: 50%;
+  font-size: 1rem;
   color: #8a7f70;
   cursor: pointer;
   line-height: 1;
+  transition: background 0.2s, color 0.2s;
+}
+.quote-popup .qp-close:hover,
+.quote-popup .qp-close:focus-visible {
+  background: rgba(36, 28, 21, 0.08);
+  color: var(--maroon);
 }
 .quote-popup h4 {
   font-family: var(--display);
   font-size: 1.05rem;
   color: var(--maroon);
   margin-bottom: 6px;
-  padding-right: 16px;
+  padding-right: 28px;
 }
 .quote-popup p {
   font-size: 0.85rem;

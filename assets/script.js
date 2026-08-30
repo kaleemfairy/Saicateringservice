@@ -58,4 +58,27 @@ document.addEventListener('DOMContentLoaded', () => {
         : '<p style="margin:0; color:#3D5C3A; font-weight:600;">Opening WhatsApp for you…</p>';
     });
   }
+
+  // Scroll-reveal — fade/slide sections in as they enter view.
+  // Only applies the hidden starting state when IntersectionObserver exists,
+  // so content is never stuck invisible in unsupported browsers.
+  const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if ('IntersectionObserver' in window && !prefersReducedMotion) {
+    const revealTargets = document.querySelectorAll(
+      '.section-head, .dish-card, .testi, .work-card, .area-card, .contact-card, .about-visual, .about-copy, .stat-row, .thali, .map-block'
+    );
+    const revealObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('reveal-in');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+    revealTargets.forEach(el => {
+      el.classList.add('reveal');
+      revealObserver.observe(el);
+    });
+  }
 });
