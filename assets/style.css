@@ -225,6 +225,12 @@ body.page-leaving{opacity:0;}
   .reveal, .reveal-child{opacity:1 !important; transform:none !important;}
 }
 
+/* Printing / "Save as PDF" never scrolls, so scroll-reveal would never fire — show everything. */
+@media print{
+  body{opacity:1 !important;}
+  .reveal, .reveal-child{opacity:1 !important; transform:none !important;}
+}
+
 /* ===== Quote popup (soft, delayed, corner) ===== */
 .quote-popup{
   position:fixed; right:20px; bottom:20px; z-index:200;
