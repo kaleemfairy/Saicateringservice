@@ -24,6 +24,16 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
     revealTargets.forEach(el => io.observe(el));
+    // Safety net: content below the fold only reveals once a real scroll
+    // brings it into view. Anything that captures the page without actually
+    // scrolling — a full-page screenshot tool, print/"save as PDF", some
+    // embedded webviews — never fires that, leaving whole sections blank.
+    // Force-reveal anything still hidden a couple seconds after load so the
+    // page is never stuck showing empty blocks.
+    setTimeout(() => {
+      revealTargets.forEach(el => el.classList.add('in-view'));
+      io.disconnect();
+    }, 2500);
   } else {
     revealTargets.forEach(el => el.classList.add('in-view'));
   }
