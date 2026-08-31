@@ -1,4 +1,45 @@
+// Reset the page-transition fade when a page is restored from bfcache
+// (e.g. the browser Back button), since DOMContentLoaded doesn't refire then.
+window.addEventListener('pageshow', () => {
+  document.body.classList.remove('page-leaving');
+  requestAnimationFrame(() => document.body.classList.add('page-ready'));
+});
+
 document.addEventListener('DOMContentLoaded', () => {
+  // Page entrance fade-in
+  requestAnimationFrame(() => document.body.classList.add('page-ready'));
+
+  // Scroll-reveal: fade/slide up sections and cards as they enter the viewport
+  const revealTargets = document.querySelectorAll(
+    '.section-head, .dish-card, .work-card, .testi, .area-card, .stat, .about-visual, .contact-card, .map-block, .hero-inner > div'
+  );
+  revealTargets.forEach(el => el.classList.add('reveal'));
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+    revealTargets.forEach(el => io.observe(el));
+  } else {
+    revealTargets.forEach(el => el.classList.add('in-view'));
+  }
+
+  // Smooth fade transition when navigating to another page on this site
+  document.querySelectorAll('a[href]').forEach(a => {
+    const href = a.getAttribute('href');
+    if (!href || href.startsWith('#') || href.startsWith('http') || href.startsWith('tel:') || href.startsWith('mailto:') || a.target === '_blank') return;
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      document.body.classList.remove('page-ready');
+      document.body.classList.add('page-leaving');
+      setTimeout(() => { window.location.href = href; }, 260);
+    });
+  });
+
   const yearEl = document.getElementById('year');
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
